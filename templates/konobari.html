@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Prikaz konobara</title>
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">        
+    </head>
+    <body>
+         <!-- Modal -->
+         <div class="modal fade" id="addClassModal" tabindex="-1" aria-labelledby="addClassModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addClassModalLabel">Dodaj konobara</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addClassForm" method="POST" action="/konobari/add">
+                            <div class="mb-3">
+                                <label for="ime" class="form-label">Ime</label>
+                                <input type="text" class="form-control" id="ime" name="ime">
+                               
+                            </div>
+                            <div class="mb-3">
+                                <label for="prezime" class="form-label">Prezime</label>
+                                <input type="text" class="form-control" id="prezime" name="prezime">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="broj_stola" class="form-label">Broj</label>
+                                <input type="number" class="form-control" id="broj_stola" name="broj_stola">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+                        <button type="button" class="btn btn-primary" id="addClassBtn">Dodaj konobara</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="editClassModal" tabindex="-1" aria-labelledby="editClassModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addClassModalLabel">Uredi konobara</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addClassForm" method="POST" action="/konobari/add">
+                            <div class="mb-3">
+                                <label for="ime" class="form-label">Ime</label>
+                                <input type="hidden" class="form-control" id="konobari" name="konobariIdEdit">
+                                <input type="text" class="form-control" id="imeEdit" name="imeEdit">
+                            </div>
+                            <div class="mb-3">
+                                <label for="prezime" class="form-label">Prezime</label>
+                                <input type="text" class="form-control" id="prezimeEdit" name="prezimeEdit">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="broj_stola" class="form-label">Broj</label>
+                                <input type="number" class="form-control" id="broj_stolaEdit" name="broj_stolaEdit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+                        <button type="button" class="btn btn-primary" id="editClassBtn">Uredi konobare</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row mt-3 mb-3">
+                <div class="col">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
+                        Dodaj konobara
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <table id="classesTbl" class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Ime</th>
+                                <th scope="col">Prezime</th>
+                                
+                                <th scope="col">Broj</th>
+                                <th scope="col">Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for konobari in konobari %}
+                            <tr id="row-{{ konobari.id}}">
+                                <td>{{ konobari.id}}</td>
+                                <td>{{ konobari.ime }}</td>
+                                <td>{{ konobari.prezime }}</td>
+                                
+                                <td>{{ konobari.broj_stola}}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger deleteClassBtn" data-id="{{ konobari.id }}">Briši</button>
+                                    <button class="btn btn-sm btn-default editClassBtn" data-id="{{ konobari.id }}">Uredi</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap 5 JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.js" integrity="sha512-oFOCo2/3DtjrJG4N27BjSLQWoiBv171sK6a+JiWjp/7agxC2nCUP358AqzxkBUb5jX8g6CYLPdSKQTbC0weCwA==" crossorigin="anonymous"></script>
+    
+        <script>
+            $(document).ready(function() {
+                var socket = io.connect('http://127.0.0.1:5000/kafka');
+
+                $(document).on('click', '.editClassBtn', function() {
+                    var id = $(this).data('id');
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/konobari/" + id,
+                        success: function(data) {
+                            $('#imeEdit').val(data[0].ime);
+                            $('#prezimeEdit').val(data[0].prezime);
+                            
+                            $('#broj_stolaEdit').val(data[0].broj_stola);
+                            $('#konobariIdEdit').val(data[0].id);
+                            $("#editClassModal").modal("show");
+                        },
+                        error: function(error) {
+                            console.error('Nastala je greška:', error);
+                        }
+                    });
+                });
+                $(document).on('click', '#editClassBtn',function(event) {
+                    event.preventDefault(); // Zaustavi formu 
+                    var formData = {
+                        id: $("#konobariIdEdit").val(),
+                        ime: $("#imeEdit").val(),
+                        prezime: $("#prezimeEdit").val(),
+                        
+                        broj_stola: $("#broj_stolaEdit").val()
+                    };
+                    $.ajax({
+                        type: "PUT",
+                        url: "/konobari/edit",
+                        data: formData,
+                        success: function(response) {
+                            console.log("Konobar uređen!");
+                            $("#editClassModal").modal("hide");
+                        },
+                        error: function(error) {
+                            console.error("Nastala je greška:", error);
+                        }
+                    });
+                });
+                $(document).on('click', '#addClassBtn',function(event) {
+                    event.preventDefault(); // Zaustavi formu 
+                    var formData = {
+                        ime: $("#ime").val(),
+                        prezime: $("prezime").val(),
+                        
+                        broj_stola: $("broj_stola").val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "/konobari/add",
+                        data: formData,
+                        success: function(response) {
+                            console.log("Konobar dodan!");
+                        },
+                        error: function(error) {
+                            console.error("Nastala je greška:", error);
+                        }
+                    });
+                });
+
+                $(document).on('click', '.deleteClassBtn', function() {
+                    var row = $(this).closest('tr');
+                    var id = $(this).data('id');
+                    $.ajax({
+                        type: "DELETE",
+                        url: "/konobari/delete/" + id,
+                        success: function(data) {
+                            if (data.message) {
+                                row.remove();
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Nastala je greška:', error);
+                        }
+                    });
+                });
+
+                socket.on('connect', function() {
+                    console.log('Connected to SocketIO server');
+                });
+
+                socket.on('data', function(msg) {
+                    msg["konobari"].forEach(function(konobari) {
+                        var table = $('#classesTbl'); // Identifikator tablice
+                        var rowId = "row-" + konobari.id;
+                        var existingRow = $('#' + rowId);
+                        
+                        if (existingRow.length) {
+                            // Ažuriraj postojeći redak
+                            existingRow.find('td:eq(1)').text(konobari.ime);
+                            existingRow.find('td:eq(2)').text(konobari.prezime);
+                            
+                            existingRow.find('td:eq(4)').text(konobari.broj_Stola);
+                        } else {
+                            // Dodaj novi redak
+                            var row = $('<tr>').attr('id', rowId);
+                            row.append($('<td>').text(konobari.id));
+                            row.append($('<td>').text(konobari.ime));
+                            row.append($('<td>').text(konobari.prezime));
+                           
+                            row.append($('<td>').text(konobari.broj_stola));
+                            
+                            var deleteBtn = $('<button>').addClass('btn btn-sm btn-danger deleteClassBtn')
+                                                        .attr('data-id', konobari.id)
+                                                        .text('Briši');
+
+                            var editBtn = $('<button>').addClass('btn btn-sm btn-default editClassBtn')
+                                                        .attr('data-id', konobari.id)
+                                                        .text('Uredi');
+                            
+                            var deleteCell = $('<td>').append(deleteBtn, ' ', editBtn);
+                            row.append(deleteCell);
+                            table.append(row);
+                        }
+                        //edit button
+                        
+                        $("#addClassModal").modal("hide");
+                    });
+                });
+
+            });
+
+        </script>
+    </body>
+    </html>
